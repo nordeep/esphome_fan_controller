@@ -1,0 +1,125 @@
+substitutions:
+  device_name: fanmaster
+  device_description: FanMaster Fan controller
+  friendly_name: fanmaster
+
+esphome:
+  name: ${device_name}
+  comment: ${device_description}
+  platform: ESP8266
+  board: nodemcuv2
+  on_boot:
+    - priority: 200.0
+      then:
+        - output.set_level:
+            id: pwmfan
+            level: 100%
+
+wifi:
+  ssid: !secret ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: ${friendly_name}_AP
+    password: !secret wifi_password
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: !secret api_password
+
+# Enable OTA
+ota:
+  password: !secret api_password
+
+switch:
+  - platform: restart
+    name: ${friendly_name} Restart
+
+binary_sensor:
+# Reports if this device is Connected or not
+  - platform: status
+    name: ${friendly_name} Status
+
+sensor:
+# Reports the WiFi signal strength
+  - platform: wifi_signal
+    name: ${friendly_name} Signal
+    update_interval: 60s
+
+# Reports RPM by pulse_counter
+  - platform: pulse_counter
+    pin: D6
+    name: ${friendly_name} Fan Speed
+    unit_of_measurement: 'RPM'
+    filters:
+      - multiply: 0.5
+      - lambda: |-
+          if (x <= 1500) return x;
+          else return {};
+    count_mode:
+      rising_edge: INCREMENT
+      falling_edge: DISABLE
+    update_interval: 30s
+
+# Reports how long the device has been powered (in minutes)
+  - platform: uptime
+    name: ${friendly_name} Uptime
+    filters:
+      - lambda: return x / 60.0;
+    unit_of_measurement: minutes
+
+text_sensor:
+# Reports the ESPHome Version with compile date
+  - platform: version
+    name: ${friendly_name} ESPHome Version
+
+# Reports WiFi name
+  - platform: wifi_info
+    ssid:
+      name: ${friendly_name} WiFi
+
+# Reports IP
+  - platform: wifi_info
+    ip_address:
+      name: ${friendly_name} IP
+
+status_led:
+  pin: 
+    number: D0
+    inverted: False
+
+power_supply:
+  - id: fan_supply
+    pin: D5
+
+output:
+  - platform: template
+    id: fan_template
+    type: float
+    power_supply: fan_supply
+    write_action:
+      - output.set_level:
+          id: pwmfan
+          level: !lambda return state;
+  - platform: esp8266_pwm
+    pin: D7
+    frequency: 25000 Hz
+    id: pwmfan
+
+fan:
+  - platform: speed
+    output: fan_template
+    name: ${friendly_name} Fan
+    on_turn_off:
+    - logger.log: "Fan Turned Off!"
+    - delay: 11s
+    - logger.log: "Write 100%% to output pwmfan"
+    - output.set_level:
+        id: pwmfan
+        level: 100%
