@@ -94,19 +94,10 @@ status_led:
     number: D0
     inverted: False
 
-power_supply:
-  - id: fan_supply
-    pin: D5
-
 output:
-  - platform: template
-    id: fan_template
-    type: float
-    power_supply: fan_supply
-    write_action:
-      - output.set_level:
-          id: pwmfan
-          level: !lambda return state;
+  - platform: gpio
+    pin: D5
+    id: fan_supply
   - platform: esp8266_pwm
     pin: D7
     frequency: 25000 Hz
@@ -114,12 +105,16 @@ output:
 
 fan:
   - platform: speed
-    output: fan_template
+    output: pwmfan
     name: ${friendly_name} Fan
+    on_turn_on:
+      - output.turn_on: fan_supply
+      - logger.log: "Power of Fan turned ON"
     on_turn_off:
-    - logger.log: "Fan Turned Off!"
-    - delay: 11s
-    - logger.log: "Write 100%% to output pwmfan"
-    - output.set_level:
-        id: pwmfan
-        level: 100%
+      - output.turn_off: fan_supply
+      - logger.log: "Power of Fan turned OFF"
+      - delay: 1s
+      - logger.log: "Write 100%% to output pwmfan"
+      - output.set_level:
+          id: pwmfan
+          level: 100%
