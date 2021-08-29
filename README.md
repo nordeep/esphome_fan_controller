@@ -16,7 +16,7 @@ Be careful while connect PSU +12V and GND to MOSFET.
 5. 12V DC PSU
 
 ## Schema
-![Schema](https://raw.githubusercontent.com/nordeep/esphome_fan_controller/main/images/fanmaster.svg)
+![Schema](https://raw.githubusercontent.com/nordeep/esphome_fan_controller/main/images/fanmaster.png)
 
 ## Software
 Tested on ESPHome v 1.20.1  
