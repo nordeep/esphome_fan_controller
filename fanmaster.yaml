@@ -54,7 +54,7 @@ sensor:
 
 # Reports RPM by pulse_counter
   - platform: pulse_counter
-    pin: D6
+    pin: D7
     name: ${friendly_name} Fan Speed
     unit_of_measurement: 'RPM'
     filters:
@@ -99,7 +99,7 @@ output:
     pin: D5
     id: fan_supply
   - platform: esp8266_pwm
-    pin: D7
+    pin: D6
     frequency: 25000 Hz
     id: pwmfan
 
