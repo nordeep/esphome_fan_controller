@@ -17,6 +17,7 @@ Be careful while connect PSU +12V and GND to MOSFET.
 
 ## Schema
 ![Schema](https://raw.githubusercontent.com/nordeep/esphome_fan_controller/main/images/fanmaster.png)
+![Pinout](https://raw.githubusercontent.com/nordeep/esphome_fan_controller/main/images/34PinFanPinout.jpg)
 
 ## Software
 Tested on ESPHome v 1.20.1  
